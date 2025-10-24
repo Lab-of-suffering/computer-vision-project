@@ -3,8 +3,6 @@ import numpy as np
 from init_estimation import get_img_paths, get_world_coordinates, compute_H, find_K, find_E
 from refinement import bundle_adjustment
 
-
-
 def calibrate_camera(img_path: str, 
                      pattern_size: tuple[int, int], 
                      square_size: int,
