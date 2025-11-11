@@ -1,5 +1,17 @@
-## How to run
+# Camera Calibration Service
 
-1) Clone the repository
-2) Run `pip install -r requirements.txt` in the terminal
-3) Run zhang_method.py: `python zhang_method.py` in the terminal
+## Backend
+```bash
+cd backend
+pip install -r requirements.txt
+python main.py
+```
+
+## Frontend
+```bash
+cd frontend
+pnpm install
+pnpm dev
+```
+
+Open http://localhost:3000
