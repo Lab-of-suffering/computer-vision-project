@@ -1,5 +1,9 @@
 # Camera Calibration Service
 
+Two calibration methods available:
+- **Chessboard Calibration** (Zhang's method): Traditional, more accurate
+- **Self-Calibration** (SfM): No pattern required, just photos of any scene
+
 ## Backend
 ```bash
 cd backend

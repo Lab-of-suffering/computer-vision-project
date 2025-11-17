@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 
-const FileUpload = ({ onImagesSelected }) => {
+const FileUpload = ({ onImagesSelected, minImages = 5, maxImages = 500, label = "Upload images" }) => {
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [previewUrls, setPreviewUrls] = useState([]);
   const fileInputRef = useRef(null);
@@ -8,13 +8,13 @@ const FileUpload = ({ onImagesSelected }) => {
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files);
     
-    if (files.length < 5) {
-      alert('Please upload at least 5 images');
+    if (files.length < minImages) {
+      alert(`Please upload at least ${minImages} images`);
       return;
     }
     
-    if (files.length > 30) {
-      alert('Maximum 30 images allowed');
+    if (files.length > maxImages) {
+      alert(`Maximum ${maxImages} images allowed`);
       return;
     }
 
@@ -49,7 +49,7 @@ const FileUpload = ({ onImagesSelected }) => {
     <div className="w-full">
       <div className="mb-6">
         <label className="block mb-2 text-sm font-medium text-gray-700">
-          Upload chessboard images
+          {label}
         </label>
         <div className="flex items-center justify-center w-full">
           <label className="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors">
@@ -71,7 +71,7 @@ const FileUpload = ({ onImagesSelected }) => {
                 <span className="font-semibold">Click to select</span> or drag and drop
               </p>
               <p className="text-xs text-gray-500">
-                PNG, JPG (minimum 5, recommended 15+ images)
+                PNG, JPG (minimum {minImages}, maximum {maxImages} images)
               </p>
             </div>
             <input

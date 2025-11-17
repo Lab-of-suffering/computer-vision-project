@@ -20,6 +20,7 @@ sys.path.insert(0, parent_dir)
 
 from zhang_method import calibrate_camera
 from init_estimation import get_img_paths, get_world_coordinates, compute_H
+from backend.self_calibration_core import self_calibrate
 
 app = FastAPI(title="Camera Calibration API")
 
@@ -119,6 +120,73 @@ async def calibrate(
     finally:
         # Clean up temporary directory
         shutil.rmtree(temp_dir, ignore_errors=True)
+
+@app.post("/self-calibrate")
+async def self_calibrate_endpoint(
+    files: List[UploadFile] = File(...),
+    stride: int = 1,
+    max_frames: int = 500
+):
+    """
+    Self-calibration without calibration pattern.
+    Estimates camera intrinsics from image sequence alone.
+    
+    Parameters:
+    - files: List of image files (minimum 10, recommended 15-100, maximum 500)
+    - stride: Frame sampling stride (default: 1 = use all frames)
+    - max_frames: Maximum frames to process (default: 500)
+    """
+    
+    if len(files) < 10:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Self-calibration needs at least 10 images, got {len(files)}"
+        )
+    
+    temp_dir = tempfile.mkdtemp()
+    
+    try:
+        # Load all images
+        images = []
+        for idx, file in enumerate(files):
+            contents = await file.read()
+            nparr = np.frombuffer(contents, np.uint8)
+            img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+            
+            if img is None:
+                continue
+            
+            images.append(img)
+        
+        if len(images) < 10:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Only {len(images)} valid images loaded, need at least 10"
+            )
+        
+        # Run self-calibration
+        result = self_calibrate(
+            images=images,
+            target_width=960,
+            feature_type="sift",
+            stride=stride,
+            max_frames=max_frames,
+            verbose=True
+        )
+        
+        return JSONResponse(content=result)
+    
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        import traceback
+        error_detail = f"Self-calibration failed: {str(e)}\n{traceback.format_exc()}"
+        print(error_detail)
+        raise HTTPException(status_code=500, detail=f"Self-calibration failed: {str(e)}")
+    
+    finally:
+        shutil.rmtree(temp_dir, ignore_errors=True)
+
 
 @app.post("/undistort")
 async def undistort_image(

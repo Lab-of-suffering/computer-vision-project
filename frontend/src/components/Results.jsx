@@ -3,6 +3,12 @@ import React from 'react';
 const Results = ({ results }) => {
   if (!results) return null;
 
+  // Detect calibration method
+  const isSelfCalibration = results.method === 'self_calibration';
+  
+  // For self-calibration, distortion is assumed zero (pinhole model)
+  const distortionCoeffs = results.distortion_coefficients || [0, 0, 0, 0, 0];
+
   const formatMatrix = (matrix) => {
     return matrix.map((row, i) => (
       <div key={i} className="flex gap-4 justify-center font-mono text-sm">
@@ -16,6 +22,7 @@ const Results = ({ results }) => {
   };
 
   const formatArray = (arr) => {
+    if (!arr) return null;
     return arr.map((val, i) => (
       <span key={i} className="font-mono">
         {val.toFixed(6)}
@@ -68,15 +75,23 @@ const Results = ({ results }) => {
             <div className="text-2xl font-bold text-blue-900">{results.num_images_used}</div>
           </div>
           <div className="bg-green-50 rounded-lg p-4 border border-green-200">
-            <div className="text-sm text-green-600 font-semibold mb-1">Mean Error</div>
+            <div className="text-sm text-green-600 font-semibold mb-1">
+              {isSelfCalibration ? 'Good Pairs' : 'Mean Error'}
+            </div>
             <div className="text-2xl font-bold text-green-900">
-              {results.mean_reprojection_error?.toFixed(4) || 'N/A'}
+              {isSelfCalibration 
+                ? results.num_good_pairs 
+                : results.mean_reprojection_error?.toFixed(4) || 'N/A'}
             </div>
           </div>
-          <div className="bg-purple-50 rounded-lg p-4 border border-purple-200">
-            <div className="text-sm text-purple-600 font-semibold mb-1">Board Size</div>
-            <div className="text-2xl font-bold text-purple-900">
-              {results.pattern_size?.[0]} × {results.pattern_size?.[1]}
+          <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+            <div className="text-sm text-blue-600 font-semibold mb-1">
+              {isSelfCalibration ? 'Image Size' : 'Board Size'}
+            </div>
+            <div className="text-2xl font-bold text-blue-900">
+              {isSelfCalibration 
+                ? `${results.image_size?.[0]} × ${results.image_size?.[1]}`
+                : `${results.pattern_size?.[0]} × ${results.pattern_size?.[1]}`}
             </div>
           </div>
         </div>
@@ -106,15 +121,27 @@ const Results = ({ results }) => {
               <li>• c<sub>x</sub> (principal point X): <span className="font-mono">{results.camera_matrix[0][2].toFixed(2)}</span> pixels</li>
               <li>• c<sub>y</sub> (principal point Y): <span className="font-mono">{results.camera_matrix[1][2].toFixed(2)}</span> pixels</li>
             </ul>
+            {isSelfCalibration && (
+              <div className="mt-2 pt-2 border-t border-blue-200">
+                <span className="text-xs text-blue-600">
+                  ℹ️ Self-calibration uses pinhole camera model (no distortion)
+                </span>
+              </div>
+            )}
           </div>
         </div>
 
         {/* Distortion Coefficients */}
         <div className="mb-6">
           <div className="flex justify-between items-center mb-3">
-            <h3 className="text-xl font-semibold text-gray-800">Distortion Coefficients</h3>
+            <h3 className="text-xl font-semibold text-gray-800">
+              Distortion Coefficients
+              {isSelfCalibration && (
+                <span className="ml-2 text-sm font-normal text-gray-500">(Assumed Zero)</span>
+              )}
+            </h3>
             <button
-              onClick={() => copyToClipboard(JSON.stringify(results.distortion_coefficients))}
+              onClick={() => copyToClipboard(JSON.stringify(distortionCoeffs))}
               className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors flex items-center gap-2"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -125,34 +152,44 @@ const Results = ({ results }) => {
           </div>
           <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
             <div className="font-mono text-sm text-center">
-              [{formatArray(results.distortion_coefficients)}]
+              [{formatArray(distortionCoeffs)}]
             </div>
           </div>
           <div className="mt-3 text-sm text-gray-600 bg-blue-50 rounded-lg p-3">
             <strong>Coefficients:</strong>
             <ul className="mt-2 space-y-1">
-              <li>• k₁ (radial distortion): <span className="font-mono">{results.distortion_coefficients[0].toFixed(6)}</span></li>
-              <li>• k₂ (radial distortion): <span className="font-mono">{results.distortion_coefficients[1].toFixed(6)}</span></li>
-              <li>• p₁ (tangential distortion): <span className="font-mono">{results.distortion_coefficients[2].toFixed(6)}</span></li>
-              <li>• p₂ (tangential distortion): <span className="font-mono">{results.distortion_coefficients[3].toFixed(6)}</span></li>
-              <li>• k₃ (radial distortion): <span className="font-mono">{results.distortion_coefficients[4].toFixed(6)}</span></li>
+              <li>• k₁ (radial distortion): <span className="font-mono">{distortionCoeffs[0].toFixed(6)}</span></li>
+              <li>• k₂ (radial distortion): <span className="font-mono">{distortionCoeffs[1].toFixed(6)}</span></li>
+              <li>• p₁ (tangential distortion): <span className="font-mono">{distortionCoeffs[2].toFixed(6)}</span></li>
+              <li>• p₂ (tangential distortion): <span className="font-mono">{distortionCoeffs[3].toFixed(6)}</span></li>
+              <li>• k₃ (radial distortion): <span className="font-mono">{distortionCoeffs[4].toFixed(6)}</span></li>
             </ul>
           </div>
         </div>
 
         {/* Info box */}
-        <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-6 border border-blue-200">
+        <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg p-6 border border-blue-200">
           <h4 className="font-semibold text-gray-800 mb-2 flex items-center gap-2">
             <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-                How to Use These Results
-              </h4>
-              <p className="text-sm text-gray-700 leading-relaxed">
+            How to Use These Results
+          </h4>
+          <p className="text-sm text-gray-700 leading-relaxed">
+            {isSelfCalibration ? (
+              <>
+                Use the camera matrix (K) in OpenCV for 3D reconstruction or AR applications.
+                Self-calibration assumes a pinhole camera model with zero distortion.
+                For better accuracy with lens distortion, use the chessboard calibration method.
+              </>
+            ) : (
+              <>
                 Use the camera matrix and distortion coefficients in OpenCV to correct images 
                 with the <code className="bg-white px-2 py-0.5 rounded">cv2.undistort()</code> function. 
                 A low mean error (less than 1.0) indicates good calibration quality.
-              </p>
+              </>
+            )}
+          </p>
         </div>
       </div>
     </div>
