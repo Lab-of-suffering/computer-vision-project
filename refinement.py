@@ -94,7 +94,7 @@ def _reprojection_residuals(x: np.ndarray,
 
     return np.asarray(residuals, dtype=np.float32)
 
-def bundle_adjustment(img_points_list: list[np.ndarray],
+def refine_camera_parameters(img_points_list: list[np.ndarray],
                       world_coords: np.ndarray,
                       K_init: np.ndarray,
                       extrinsics_init: list[np.ndarray],
@@ -103,11 +103,11 @@ def bundle_adjustment(img_points_list: list[np.ndarray],
                       verbose: int = 2,
                       max_nfev: int = 200) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """
-    Full nonlinear bundle adjustment optimizing intrinsics (fx,fy,s,cx,cy or fx,fy,cx,cy if optimize_skew=False),
+    Full nonlinear bundle adjustment optimizing intrinsics fx,fy,cx,cy (and s if optimize_skew=True),
     distortion (k1,k2,p1,p2,k3) and per-view extrinsics (rvec,tvec) using least squares.
 
     Returns:
-      K_opt (3x3), dist_opt (5,), extrinsics_opt (list of 4x4 matrices)
+    K_opt (3x3), dist_opt (5,), extrinsics_opt (list of 4x4 matrices), rvecs_opt, tvecs_opt
     """
     n_views = len(img_points_list)
     if n_views == 0:

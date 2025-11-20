@@ -6,6 +6,7 @@ import numpy as np
 from numpy.linalg import svd
 
 def get_img_paths(images_path: str) -> list[str]:
+    """Helper function to get image path from a folder."""
     patterns = ['*.jpg', '*.jpeg', '*.png']
     images_list = []
     for pattern in patterns:
@@ -13,6 +14,7 @@ def get_img_paths(images_path: str) -> list[str]:
     return images_list
 
 def get_world_coordinates(pattern_size: tuple[int, int], square_size: int) -> np.ndarray:
+    """Function to get chessboard corners' coordinates in the real world."""
     n_corners = pattern_size[0] * pattern_size[1]
     world_X, world_Y = np.meshgrid(range(pattern_size[0]), range(pattern_size[1]))
     world_X = world_X.reshape(n_corners, 1)
@@ -23,7 +25,11 @@ def get_world_coordinates(pattern_size: tuple[int, int], square_size: int) -> np
 
 
 def get_v(h: np.ndarray, i: int, j: int) -> np.ndarray:
-    """h, i, j are all zero-indexed"""
+    """
+    Helper function to get v[i][j]. 
+    
+    h, i, j are all zero-indexed
+    """
     v_ij = np.array([
         h[0, i] * h[0, j],
         h[0, i] * h[1, j] + h[1, i] * h[0, j],
@@ -36,6 +42,7 @@ def get_v(h: np.ndarray, i: int, j: int) -> np.ndarray:
     return v_ij
 
 def get_B(b: np.ndarray) -> np.ndarray:
+    """Helper function to get symmetric B matrix from 6 b's."""
     b_11 = b[0]
     b_12 = b[1]
     b_13 = b[2]
@@ -53,6 +60,11 @@ def compute_H(img_path: str,
               pattern_size: tuple[int, int], 
               world_coordinates: np.ndarray, 
               show_images: bool = False) -> tuple[list[np.ndarray], list[np.ndarray]]:
+    """
+    Function to compute H matrix for every image. 
+    
+    Returns list of H matrices and list of image points.
+    """
     img_list = get_img_paths(img_path)
     
     term_criterion = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
@@ -89,6 +101,7 @@ def compute_H(img_path: str,
     return H_matrices, img_points
 
 def find_K(H_matrices: list[np.ndarray]) -> np.ndarray:
+    """Function to find matrix K from H matrices."""
     V = []
 
     for h in H_matrices:
@@ -119,6 +132,7 @@ def find_K(H_matrices: list[np.ndarray]) -> np.ndarray:
 
 
 def find_E(H_matrices: list[np.ndarray], K: np.ndarray) -> list[np.ndarray]:
+    """Function to find extrinsic matrix from H matrices and K matrix."""
     K_inv = np.linalg.inv(K)
 
     rotations = []
