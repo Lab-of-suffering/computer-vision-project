@@ -43,6 +43,23 @@ def calibrate_camera(img_path: str,
 
     if print_results:
         print("Mean reprojection error:\n", mean_error/len(img_list))
+
+    mean_error = 0.0
+    total_points = 0
+    for i in range(len(img_list)):
+        imgpoints2, _ = cv2.projectPoints(world_coordinates, rvecs[i], tvecs[i], K_opt, dist_opt)
+        obs = img_points[i].reshape(-1, 2)
+        proj = imgpoints2.reshape(-1, 2)
+        
+        # squared Euclidean distances
+        sq_dists = np.sum((obs - proj)**2, axis=1)
+        mean_error += np.sum(sq_dists)
+        total_points += len(sq_dists)
+
+    rmse = np.sqrt(mean_error / total_points)
+    
+    if print_results:
+        print("RMS reprojection error:", rmse)
     
     return K_opt, dist_opt, rvecs, tvecs
 

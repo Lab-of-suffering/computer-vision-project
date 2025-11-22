@@ -40,3 +40,5 @@ output/
 data/out/
 *.npz
 backend/temp_*
+
+HW4
