@@ -77,7 +77,7 @@ Open http://localhost:3000
 | Method                  | RMSE (px) | Pros                                  | Cons                                       |
 | ----------------------- | ---------- | -------------------------------------- | ------------------------------------------ |
 | **Zhang’s calibration** | **0.19**   | Very accurate, stable, subpixel error  | Requires calibration pattern               |
-| **Self-calibration**    | **8.06**   | No pattern needed, works on raw video  | Sensitive to parallax, texture, degeneracy |
+| **Self-calibration**    | **0.89**   | No pattern needed, works on raw video  | Sensitive to parallax, texture, degeneracy |
 
 
 ## 👥 Team
