@@ -96,7 +96,8 @@ def compute_H(img_path: str,
             cv2.imshow('img', img_rgb)
             cv2.waitKey(400)
 
-    cv2.destroyAllWindows()
+    if show_images:
+        cv2.destroyAllWindows()
 
     return H_matrices, img_points
 

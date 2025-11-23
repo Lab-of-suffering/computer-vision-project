@@ -10,17 +10,19 @@ import tempfile
 from typing import List
 import base64
 
-# Import the calibration functions
-import sys
-import os
-
-# Add parent directory to path
-parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, parent_dir)
-
-from zhang_method import calibrate_camera
-from init_estimation import get_img_paths, get_world_coordinates, compute_H
-from backend.self_calibration_core import self_calibrate
+try:
+    from .zhang_method import calibrate_camera
+    from .init_estimation import get_img_paths, get_world_coordinates, compute_H
+    from .self_calibration_core import self_calibrate
+except ImportError:
+    # Allow running as `python backend/main.py`
+    import sys
+    CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+    if CURRENT_DIR not in sys.path:
+        sys.path.insert(0, CURRENT_DIR)
+    from zhang_method import calibrate_camera
+    from init_estimation import get_img_paths, get_world_coordinates, compute_H
+    from self_calibration_core import self_calibrate
 
 app = FastAPI(title="Camera Calibration API")
 

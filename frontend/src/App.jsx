@@ -1,4 +1,4 @@
-  import React, { useEffect, useState } from 'react';
+  import React, { useState } from 'react';
   import axios from 'axios';
   import FileUpload from './components/FileUpload';
   import CameraCapture from './components/CameraCapture';
@@ -95,13 +95,18 @@
     };
 
     const handleCalibrate = async () => {
-      const isSelfCalibration = calibrationType === 'self';
-      const minImages = isSelfCalibration ? 10 : 5;
+    const isSelfCalibration = calibrationType === 'self';
+    const minImages = isSelfCalibration ? 10 : 5;
+    const maxImages = isSelfCalibration ? 500 : 50;
       
       if (images.length < minImages) {
         alert(`Please ${isSelfCalibration ? 'upload' : 'capture'} at least ${minImages} images`);
         return;
       }
+    if (images.length > maxImages) {
+      alert(`Please ${isSelfCalibration ? 'upload' : 'capture'} no more than ${maxImages} images for this method`);
+      return;
+    }
 
       setLoading(true);
       setError(null);
@@ -521,8 +526,7 @@
               <div className="bg-white rounded-xl shadow-lg p-8">
                 <FileUpload 
                   onImagesSelected={handleImagesSelected}
-                  currentImages={images.map(image => image.file)}
-                  minImages={calibrationType === 'self' ? 10 : 5}
+                currentImages={images.map(image => image.file)}
                   label={calibrationType === 'self' ? 'Upload scene images' : 'Upload chessboard images'}
                   showPreview={false}
                 />

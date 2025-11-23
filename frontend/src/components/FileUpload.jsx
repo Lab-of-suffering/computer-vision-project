@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 
-const FileUpload = ({ onImagesSelected, currentImages = [], minImages = 5, maxImages = 500, label = "Upload images", showPreview = true }) => {
+const FileUpload = ({ onImagesSelected, currentImages = [], label = "Upload images", showPreview = true }) => {
   const [previewUrls, setPreviewUrls] = useState([]);
   const fileInputRef = useRef(null);
 
@@ -58,12 +58,6 @@ const FileUpload = ({ onImagesSelected, currentImages = [], minImages = 5, maxIm
     // Add new unique files to existing ones passed via props
     const allFiles = [...currentImages, ...uniqueNewFiles];
     
-    // Check minimum only for total count
-    if (allFiles.length < minImages) {
-      alert(`Please upload at least ${minImages} images in total`);
-      // Still add the files, just warn
-    }
-
     // Just notify parent about new complete list
     onImagesSelected(allFiles);
     
@@ -112,7 +106,7 @@ const FileUpload = ({ onImagesSelected, currentImages = [], minImages = 5, maxIm
                 <span className="font-semibold">Click to select</span> or drag and drop
               </p>
               <p className="text-xs text-gray-500">
-                PNG, JPG (minimum {minImages} images total)
+                PNG, JPG (drag & drop multiple files)
               </p>
             </div>
             <input

@@ -1,7 +1,13 @@
 import cv2
 import numpy as np
-from init_estimation import get_img_paths, get_world_coordinates, compute_H, find_K, find_E
-from refinement import refine_camera_parameters
+
+try:
+    from .init_estimation import get_img_paths, get_world_coordinates, compute_H, find_K, find_E
+    from .refinement import refine_camera_parameters
+except ImportError:
+    # Allow running as a standalone module
+    from init_estimation import get_img_paths, get_world_coordinates, compute_H, find_K, find_E
+    from refinement import refine_camera_parameters
 
 def calibrate_camera(img_path: str, 
                      pattern_size: tuple[int, int], 
