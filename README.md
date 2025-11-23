@@ -23,25 +23,25 @@ Both pipelines are implemented in Python using OpenCV, NumPy, and supporting SfM
 
 ```
 computer-vision-project
-├── [backend/](backend/)                # FastAPI app + calibration algorithms
-│   ├── [main.py](backend/main.py)             # API entry point (FastAPI)
-│   ├── [zhang_method.py](backend/zhang_method.py)     # Pattern-based calibration pipeline
-│   ├── [init_estimation.py](backend/init_estimation.py)  # Homography & corner helpers
-│   ├── [refinement.py](backend/refinement.py)       # Bundle-adjustment refinements
-│   ├── [self_calibration_core.py](backend/self_calibration_core.py)
-│   ├── [unpack_real_parameters.py](backend/unpack_real_parameters.py)
-│   └── [requirements.txt](backend/requirements.txt)
-├── [frontend/](frontend/)               # React + Tailwind UI (Vite)
-│   ├── [src/App.jsx](frontend/src/App.jsx)      # Main workflow
+├── backend/                # FastAPI app + calibration algorithms
+│   ├── main.py             # API entry point (FastAPI)
+│   ├── zhang_method.py     # Pattern-based calibration pipeline
+│   ├── init_estimation.py  # Homography & corner helpers
+│   ├── refinement.py       # Bundle-adjustment refinements
+│   ├── self_calibration_core.py
+│   ├── unpack_real_parameters.py
+│   └── requirements.txt
+├── frontend/               # React + Tailwind UI (Vite)
+│   ├── src/App.jsx         # Main workflow (method selection, upload, results)
 │   └── ...
-├── [data/](data/)                    # Sample input imagery + example parameters
-│   ├── [imgs/](data/imgs/)              # Chessboard sets
-│   └── [out/](data/out/)               # Reference K/dist outputs
-├── [notebooks/](notebooks/)               # Exploration + parity with production code
-│   ├── [zhang_method.ipynb](notebooks/zhang_method.ipynb)
-│   └── [self_calibration.ipynb](notebooks/self_calibration.ipynb)
-├── [output/](output/)                 # Undistorted images / logs
-└── [README.md](README.md)
+├── data/                   # Sample input imagery + example parameters
+│   ├── imgs/               # Chessboard sets
+│   └── out/                # Reference K/dist outputs
+├── notebooks/              # Exploration + parity with production code
+│   ├── zhang_method.ipynb
+│   └── self_calibration.ipynb
+├── output/                 # Generated undistorted images / experiment logs
+└── README.md
 ```
 
 ## 🔧 Installation
