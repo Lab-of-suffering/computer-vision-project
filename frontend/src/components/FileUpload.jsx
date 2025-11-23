@@ -1,44 +1,85 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 
-const FileUpload = ({ onImagesSelected, minImages = 5, maxImages = 500, label = "Upload images" }) => {
-  const [selectedFiles, setSelectedFiles] = useState([]);
+const FileUpload = ({ onImagesSelected, currentImages = [], minImages = 5, maxImages = 500, label = "Upload images", showPreview = true }) => {
   const [previewUrls, setPreviewUrls] = useState([]);
   const fileInputRef = useRef(null);
 
+  // Update preview URLs only when currentImages changes AND showPreview is true
+  useEffect(() => {
+    if (showPreview) {
+      if (currentImages.length > 0) {
+        const urls = currentImages.map(file => URL.createObjectURL(file));
+        setPreviewUrls(prevUrls => {
+          // Revoke old URLs before setting new ones
+          prevUrls.forEach(url => URL.revokeObjectURL(url));
+          return urls;
+        });
+      } else {
+        setPreviewUrls(prevUrls => {
+          prevUrls.forEach(url => URL.revokeObjectURL(url));
+          return [];
+        });
+      }
+      
+      // Cleanup function to revoke URLs when component unmounts
+      return () => {
+        setPreviewUrls(prevUrls => {
+          prevUrls.forEach(url => URL.revokeObjectURL(url));
+          return [];
+        });
+      };
+    }
+  }, [currentImages, showPreview]);
+
   const handleFileChange = (e) => {
-    const files = Array.from(e.target.files);
+    const newFiles = Array.from(e.target.files);
     
-    if (files.length < minImages) {
-      alert(`Please upload at least ${minImages} images`);
+    if (newFiles.length === 0) {
       return;
     }
     
-    if (files.length > maxImages) {
-      alert(`Maximum ${maxImages} images allowed`);
+    // Filter out duplicates (check if file with same name, size and date already exists)
+    const uniqueNewFiles = newFiles.filter(newFile => {
+      return !currentImages.some(existingFile => 
+        existingFile.name === newFile.name && 
+        existingFile.size === newFile.size &&
+        existingFile.lastModified === newFile.lastModified
+      );
+    });
+
+    if (uniqueNewFiles.length === 0) {
+      // All files are duplicates
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
       return;
+    }
+    
+    // Add new unique files to existing ones passed via props
+    const allFiles = [...currentImages, ...uniqueNewFiles];
+    
+    // Check minimum only for total count
+    if (allFiles.length < minImages) {
+      alert(`Please upload at least ${minImages} images in total`);
+      // Still add the files, just warn
     }
 
-    setSelectedFiles(files);
+    // Just notify parent about new complete list
+    onImagesSelected(allFiles);
     
-    // Create preview URLs
-    const urls = files.map(file => URL.createObjectURL(file));
-    setPreviewUrls(urls);
-    
-    onImagesSelected(files);
+    // Reset input to allow selecting the same files again
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
   const handleRemoveFile = (index) => {
-    const newFiles = selectedFiles.filter((_, i) => i !== index);
-    const newUrls = previewUrls.filter((_, i) => i !== index);
-    
-    setSelectedFiles(newFiles);
-    setPreviewUrls(newUrls);
+    // Filter based on index from the prop-based list
+    const newFiles = currentImages.filter((_, i) => i !== index);
     onImagesSelected(newFiles);
   };
 
   const handleClearAll = () => {
-    setSelectedFiles([]);
-    setPreviewUrls([]);
     onImagesSelected([]);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
@@ -71,7 +112,7 @@ const FileUpload = ({ onImagesSelected, minImages = 5, maxImages = 500, label = 
                 <span className="font-semibold">Click to select</span> or drag and drop
               </p>
               <p className="text-xs text-gray-500">
-                PNG, JPG (minimum {minImages}, maximum {maxImages} images)
+                PNG, JPG (minimum {minImages} images total)
               </p>
             </div>
             <input
@@ -86,11 +127,11 @@ const FileUpload = ({ onImagesSelected, minImages = 5, maxImages = 500, label = 
         </div>
       </div>
 
-      {selectedFiles.length > 0 && (
+      {showPreview && currentImages.length > 0 && (
         <div className="mt-6">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-semibold text-gray-800">
-              Selected images: {selectedFiles.length}
+              Selected images: {currentImages.length}
             </h3>
             <button
               onClick={handleClearAll}
@@ -129,4 +170,3 @@ const FileUpload = ({ onImagesSelected, minImages = 5, maxImages = 500, label = 
 };
 
 export default FileUpload;
-

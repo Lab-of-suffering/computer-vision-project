@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 
-const CameraCapture = ({ onImagesSelected, targetCount = 15 }) => {
+const CameraCapture = ({ onImagesSelected, targetCount = 15, showPreview = true }) => {
   const [stream, setStream] = useState(null);
   const [capturedImages, setCapturedImages] = useState([]);
   const [isCameraActive, setIsCameraActive] = useState(false);
@@ -219,7 +219,7 @@ const CameraCapture = ({ onImagesSelected, targetCount = 15 }) => {
         <canvas ref={canvasRef} className="hidden" />
       </div>
 
-      {capturedImages.length > 0 && (
+      {showPreview && capturedImages.length > 0 && (
         <div className="mt-6">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-semibold text-gray-800">
@@ -254,6 +254,17 @@ const CameraCapture = ({ onImagesSelected, targetCount = 15 }) => {
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      )}
+      
+      {!showPreview && capturedImages.length > 0 && (
+        <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+          <div className="flex items-center gap-2 text-green-700">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span className="font-medium">Captured: {capturedImages.length} of {targetCount}</span>
           </div>
         </div>
       )}
