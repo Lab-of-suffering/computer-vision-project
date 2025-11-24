@@ -597,7 +597,8 @@
               <div className="bg-white rounded-xl shadow-lg p-8">
                 <CameraCapture 
                   onImagesSelected={handleImagesSelected} 
-                  targetCount={calibrationType === 'self' ? 50 : 15} 
+                  targetCount={calibrationType === 'self' ? 50 : 15}
+                  calibrationType={calibrationType}
                 />
                 
                 {images.length >= (calibrationType === 'self' ? 10 : 5) && (

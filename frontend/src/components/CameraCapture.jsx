@@ -1,6 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 
-const CameraCapture = ({ onImagesSelected, targetCount = 15, showPreview = true }) => {
+const CameraCapture = ({
+  onImagesSelected,
+  targetCount = 15,
+  showPreview = true,
+  calibrationType = 'zhang'
+}) => {
   const [stream, setStream] = useState(null);
   const [capturedImages, setCapturedImages] = useState([]);
   const [isCameraActive, setIsCameraActive] = useState(false);
@@ -142,12 +147,14 @@ const CameraCapture = ({ onImagesSelected, targetCount = 15, showPreview = true 
     onImagesSelected([]);
   };
 
+  const imageTypeLabel = calibrationType === 'self' ? 'scene' : 'chessboard';
+
   return (
     <div className="w-full">
       <div className="mb-6">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-semibold text-gray-800">
-            Capture {targetCount} chessboard images
+            Capture {targetCount} {imageTypeLabel} images
           </h3>
           <div className="flex gap-2">
             {!isCameraActive ? (
