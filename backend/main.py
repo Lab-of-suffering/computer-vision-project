@@ -126,8 +126,8 @@ async def calibrate(
 @app.post("/self-calibrate")
 async def self_calibrate_endpoint(
     files: List[UploadFile] = File(...),
-    stride: int = 1,
-    max_frames: int = 500
+    stride: int = 4,
+    max_frames: int = 150
 ):
     """
     Self-calibration without calibration pattern.
